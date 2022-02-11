@@ -1,15 +1,15 @@
 import { Column, PrimaryGeneratedColumn } from 'typeorm';
 
 export class Portador {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   idPortador: number;
 
-  @Column()
+  @Column({ name: 'nome', type: 'varchar', length: '100' })
   nome: string;
 
-  @Column()
+  @Column({ name: 'cpf', type: 'varchar', length: '11' })
   cpf: string;
 
-  @Column({ default: true })
+  @Column({ name: 'ativo', default: true })
   ativo: boolean;
 }
