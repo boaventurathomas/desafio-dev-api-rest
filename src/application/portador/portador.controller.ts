@@ -10,8 +10,10 @@ import {
 import { PortadorService } from './portador.service';
 import { CreatePortadorDto } from './dto/create-portador.dto';
 import { UpdatePortadorDto } from './dto/update-portador.dto';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('portador')
+@ApiTags('portador')
 export class PortadorController {
   constructor(private readonly portadorService: PortadorService) {}
 
