@@ -1,10 +1,12 @@
 import { IsNotEmpty, IsString, Length } from 'class-validator';
+import { IsCPF } from 'src/decorators/cpf.decorator';
 
 export class CreatePortadorDto {
   @IsString()
   @IsNotEmpty()
-  nome: string;
+  nomeCompleto: string;
 
+  @IsCPF({message: 'CPF Inválido'})
   @IsString()
   @IsNotEmpty()
   @Length(11, 11)

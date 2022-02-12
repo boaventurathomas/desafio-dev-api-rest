@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { Portador } from './application/portador/entities/portador.entity';
 import { PortadorModule } from './application/portador/portador.module';
 
 @Module({
@@ -15,7 +16,7 @@ import { PortadorModule } from './application/portador/portador.module';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      entities: [],
+      entities: [Portador],
       synchronize: JSON.parse(process.env.DB_SYNCHRONIZE),
     }),
     PortadorModule,

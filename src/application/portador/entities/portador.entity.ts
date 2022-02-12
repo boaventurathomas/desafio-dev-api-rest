@@ -1,15 +1,20 @@
-import { Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 
+@Entity({ name: 'portador' })
 export class Portador {
-  @PrimaryGeneratedColumn('uuid')
-  idPortador: number;
+  @Column({
+    name: 'nome_completo',
+    type: 'varchar',
+    length: '100',
+    nullable: false,
+  })
+  nomeCompleto: string;
 
-  @Column({ name: 'nome', type: 'varchar', length: '100' })
-  nome: string;
-
-  @Column({ name: 'cpf', type: 'varchar', length: '11' })
+  @PrimaryColumn({
+    name: 'cpf',
+    type: 'varchar',
+    length: '11',
+    unique: true,
+  })
   cpf: string;
-
-  @Column({ name: 'ativo', default: true })
-  ativo: boolean;
 }

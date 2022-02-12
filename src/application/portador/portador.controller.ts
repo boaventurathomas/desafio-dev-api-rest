@@ -27,7 +27,7 @@ export class PortadorController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.portadorService.findOne(+id);
+    return this.portadorService.findOne(id);
   }
 
   @Patch(':id')
@@ -35,11 +35,11 @@ export class PortadorController {
     @Param('id') id: string,
     @Body() updatePortadorDto: UpdatePortadorDto,
   ) {
-    return this.portadorService.update(+id, updatePortadorDto);
+    return this.portadorService.update(id, updatePortadorDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.portadorService.remove(+id);
+    return this.portadorService.remove(id);
   }
 }
