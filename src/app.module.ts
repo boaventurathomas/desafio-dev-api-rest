@@ -7,11 +7,14 @@ import { ContaModule } from './application/conta/conta.module';
 import { Conta } from './application/conta/entities/conta.entity';
 import { Portador } from './application/portador/entities/portador.entity';
 import { PortadorModule } from './application/portador/portador.module';
+import { Transacao } from './application/transacao/entities/transacao.entity';
+import { TransacaoModule } from './application/transacao/transacao.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
+      logging: JSON.parse(process.env.DB_LOGGING),
       type: 'mysql',
       host: process.env.DB_HOST,
       port: parseInt(process.env.DB_PORT),
@@ -20,12 +23,14 @@ import { PortadorModule } from './application/portador/portador.module';
       database: process.env.DB_DATABASE,
       entities: [
         Portador,
-        Conta
+        Conta,
+        Transacao
       ],
       synchronize: JSON.parse(process.env.DB_SYNCHRONIZE),
     }),
     PortadorModule,
-    ContaModule
+    ContaModule,
+    TransacaoModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,8 +1,9 @@
 import { Portador } from "src/application/portador/entities/portador.entity";
-import { Column, Entity, Index, ManyToOne, PrimaryColumn, Unique } from "typeorm";
+import { Transacao } from "src/application/transacao/entities/transacao.entity";
+import { Column, Entity, Index, ManyToOne, OneToMany, PrimaryColumn, Unique } from "typeorm";
 
 @Entity('conta')
-export class Conta {  
+export class Conta {
   @Index()
   @PrimaryColumn({
     name: 'agencia',
@@ -11,7 +12,7 @@ export class Conta {
     nullable: false,
   })
   agencia: string;
-  
+
   @Index()
   @PrimaryColumn({
     name: 'conta',
@@ -26,9 +27,19 @@ export class Conta {
     type: 'decimal',
     precision: 15,
     scale: 2,
-    default: 0
+    default: 0,
+    
   })
   saldo: number;
+
+  @Column({
+    name: 'limite_saque_diario',
+    type: 'decimal',
+    precision: 15,
+    scale: 2,
+    default: 2000
+  })
+  limiteSaqueDiario: number;
 
   @Column({
     name: 'ativo',
@@ -39,4 +50,7 @@ export class Conta {
 
   @ManyToOne(type => Portador, portador => portador.cpf)
   portador: Portador;
+
+  @OneToMany(() => Transacao, trasacao => trasacao.conta)
+  transacoes: Transacao[];
 }

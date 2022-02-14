@@ -7,6 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 @Module({
   imports: [TypeOrmModule.forFeature([Conta])],
   controllers: [ContaController],
-  providers: [ContaService]
+  providers: [ContaService],
+  exports: [ContaService]
 })
 export class ContaModule { }

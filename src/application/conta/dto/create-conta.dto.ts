@@ -1,7 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsNotEmpty, IsObject, IsString, Length, ValidateNested } from "class-validator";
-import { Portador } from "src/application/portador/entities/portador.entity";
 import { CreateContaPortadorDto } from "./create-conta-portador.dto";
 
 export class CreateContaDto {
