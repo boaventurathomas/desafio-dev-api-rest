@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { plainToClass } from 'class-transformer';
-import { Connection, getConnection, QueryRunner, Repository } from 'typeorm';
+import { Connection, QueryRunner, Repository } from 'typeorm';
 import * as typeorm from 'typeorm';
 import { ContaModule } from '../conta/conta.module';
 import { Conta } from '../conta/entities/conta.entity';
@@ -9,7 +8,9 @@ import { CreateTrasacaoContaDto } from './dto/create-transacao-conta.dto copy';
 import { Transacao } from './entities/transacao.entity';
 import { TransacaoService } from './transacao.service';
 import { ExtratoTransacoesDto } from './dto/extrato-transacoes.dto';
-import { ok, serverError } from './../../helpers/http.helper';
+import { created, ok, serverError } from './../../helpers/http.helper';
+import { CreateTransacaoDto } from './dto/create-transacao.dto';
+import { ResponseCreateTransacaoDto } from './dto/response-create-transacao.dto';
 
 jest.mock('typeorm', () => {
   const actual = jest.requireActual('typeorm');
@@ -36,13 +37,8 @@ class ConnectionMock {
     qr.release = jest.fn();
     return qr;
   }
+  getRepository = jest.fn()
 }
-
-// const extrato: Transacao = plainToClass(Transacao, {
-//   "idTransacao": "043f96e1-1f4c-4ada-9b50-d4f0edff964f",
-//   "valor": "-1.00",
-//   "dataTransacao": "2022-02-14T19:24:36.000Z"
-// });
 
 describe('TransacaoService', () => {
   const TRANSACAO_REPOSITORY_TOKEN = getRepositoryToken(Transacao)
@@ -83,17 +79,6 @@ describe('TransacaoService', () => {
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
-
-  // it('should consultaValorSaqueDia return a sum value', async () => {
-
-  //   const resultMock = 3000;
-  //   jest.spyOn(service, 'consultaValorSaqueDia').mockImplementation(async () => Promise.resolve(resultMock));
-
-  //   const result = await service.consultaValorSaqueDia('0000', '00000000', '2022-02-14');
-
-  //   expect(result).toBe(resultMock);
-
-  // });
 
   it('should validaLimite return a true value', async () => {
     const conta: Conta = { limiteSaqueDiario: 2000 }
@@ -143,7 +128,7 @@ describe('TransacaoService', () => {
     expect(result).toBe(false)
   });
 
-  it('should buscaConta valid conta repository', async () => {
+  it('should buscaConta has valid conta repository', async () => {
     const contaResponse: Conta = {
       agencia: '0000',
       conta: '00000000',
@@ -153,7 +138,6 @@ describe('TransacaoService', () => {
 
     jest.spyOn(typeorm, "getRepository").mockImplementation(() => {
       const original = jest.requireActual("typeorm");
-      // You need all functions used in your Query builder  
       return {
         ...original,
         findOne: jest
@@ -200,21 +184,6 @@ describe('TransacaoService', () => {
 
   })
 
-  it('should buscaConta return a undefined conta', async () => {
-
-    const contaRequest: CreateTrasacaoContaDto = {
-      agencia: '0000',
-      conta: '00000000'
-    }
-
-    jest.spyOn(contaRepoMock, 'findOne').mockReturnValue(undefined)
-
-    let result = await service.buscaConta(contaRequest, contaRepoMock);
-
-    expect(result).toEqual(undefined);
-
-  })
-
   it('should atualizaSaldoConta do update is called', async () => {
 
     const contaRequest: CreateTrasacaoContaDto = {
@@ -230,7 +199,7 @@ describe('TransacaoService', () => {
 
   })
 
-  it('should extrato return ok response', async () => {
+  it('should extrato returns ok', async () => {
 
     const extratoTransacoesDTO: ExtratoTransacoesDto = {
       agencia: '0000',
@@ -264,7 +233,7 @@ describe('TransacaoService', () => {
     expect(result).resolves.toEqual(ok(response));
   })
 
-  it('should extrato return server error throw queryBuilder', async () => {
+  it('should extrato returns server error 500', async () => {
     const extratoTransacoesDTO: any = {
       conta: '00000000',
       dataInicialPeriodo: '2022-02-11',
@@ -297,30 +266,176 @@ describe('TransacaoService', () => {
     expect(result).toBe((response.totalDia * -1));
   })
 
-  // it('should if no has transaction in the date in consultaValorSaqueDia', async () => {
+  it('should if no has transaction in the date in consultaValorSaqueDia returning 0', async () => {
+    const agencia = '0000'
+    const conta = '00000000'
+    const data = '2022-02-11'
 
-  //   const agencia = '0000'
-  //   const conta = '00000000'
-  //   const data = '2022-02-11'
+    const response = { totalDia: null };
 
-  //   const response = null;
+    const createQueryBuilder: any = {
+      select: () => createQueryBuilder,
+      where: () => createQueryBuilder,
+      andWhere: () => createQueryBuilder,
+      getRawOne: () => response,
+    };
 
-  //   const createQueryBuilder: any = {
-  //     select: () => createQueryBuilder,
-  //     where: () => createQueryBuilder,
-  //     andWhere: () => createQueryBuilder,
-  //     getRawOne: () => response,
-  //   };
+    jest.spyOn(transacaoRepoMock, 'createQueryBuilder').mockImplementation(() => createQueryBuilder);
 
-  //   jest.spyOn(transacaoRepoMock, 'createQueryBuilder').mockImplementation(() => createQueryBuilder);
+    const result = await service.consultaValorSaqueDia(agencia, conta, data);
 
-  //   const result = service.consultaValorSaqueDia(agencia, conta, data);
+    expect(result).toBe(0);
+  })
 
-  //   expect(result).toBe(0);
-  // })
+  it('should if conta to deposito not found 404', async () => {
+    const depositoDto: CreateTransacaoDto = {
+      "valor": 1.37,
+      "conta": {
+        "agencia": "0000",
+        "conta": "00000000"
+      }
+    }
 
+    jest.spyOn(typeorm, "getConnection").mockImplementation(() => connection);
 
+    const qr = connection.createQueryRunner()
+    qr.connect()
+    qr.startTransaction()
 
+    jest.spyOn(connection, "getRepository").mockImplementation(() => transacaoRepoMock);
+    jest.spyOn(connection, "getRepository").mockImplementation(() => contaRepoMock);
+
+    const buscaContaSpy = jest.spyOn(service, 'buscaConta');
+    buscaContaSpy.mockImplementation(() => Promise.resolve(undefined));
+
+    const result = await service.deposito(depositoDto);
+
+    expect(result.statusCode).toBe(404)
+  })
+
+  it('should if conta to deposito is inactive returns bad request 400', async () => {
+    const depositoDto: CreateTransacaoDto = {
+      "valor": 1.37,
+      "conta": {
+        "agencia": "0000",
+        "conta": "00000000"
+      }
+    }
+
+    const contaResponse: Conta = {
+      agencia: depositoDto.conta.agencia,
+      conta: depositoDto.conta.conta,
+      ativo: true,
+      saldo: 0
+    }
+
+    jest.spyOn(typeorm, "getConnection").mockImplementation(() => connection);
+
+    const qr = connection.createQueryRunner()
+    qr.connect()
+    qr.startTransaction()
+
+    jest.spyOn(connection, "getRepository").mockImplementation(() => transacaoRepoMock);
+    jest.spyOn(connection, "getRepository").mockImplementation(() => contaRepoMock);
+
+    const buscaContaSpy = jest.spyOn(service, 'buscaConta');
+    buscaContaSpy.mockImplementation(() => Promise.resolve(contaResponse));
+
+    const contaAtivaSpy = jest.spyOn(service, 'contaAtiva')
+    contaAtivaSpy.mockImplementation(() => false)
+
+    const result = await service.deposito(depositoDto);
+
+    expect(result.statusCode).toBe(400)
+  })
+
+  it('should deposito is correct', async () => {
+    const depositoDto: CreateTransacaoDto = {
+      "valor": 1.37,
+      "conta": {
+        "agencia": "0000",
+        "conta": "00000000"
+      }
+    }
+
+    const contaResponse: Conta = {
+      agencia: depositoDto.conta.agencia,
+      conta: depositoDto.conta.conta,
+      ativo: true,
+      saldo: 0
+    }
+
+    const transacao: Transacao = {
+      idTransacao: '1',
+      valor: depositoDto.valor,
+      dataTransacao: new Date('2022-07-05'),
+      conta: {
+        conta: contaResponse.conta,
+        agencia: contaResponse.agencia,
+        saldo: contaResponse.saldo
+      }
+    }
+
+    const response: ResponseCreateTransacaoDto = {
+      transacao: {
+        idTransacao: transacao.idTransacao,
+        dataTransacao: transacao.dataTransacao,
+        valor: transacao.valor
+      },
+      conta: {
+        conta: contaResponse.conta,
+        agencia: contaResponse.agencia,
+        saldo: contaResponse.saldo + transacao.valor
+      }
+    }
+
+    jest.spyOn(typeorm, "getConnection").mockImplementation(() => connection);
+
+    const qr = connection.createQueryRunner()
+    qr.connect()
+    qr.startTransaction()
+
+    jest.spyOn(connection, "getRepository").mockImplementation(() => transacaoRepoMock);
+    jest.spyOn(connection, "getRepository").mockImplementation(() => contaRepoMock);
+
+    jest.spyOn(typeorm, "getConnection").mockImplementation(() => connection);
+
+    const buscaContaSpy = jest.spyOn(service, 'buscaConta');
+    buscaContaSpy.mockImplementation(() => Promise.resolve(contaResponse));
+
+    const contaAtivaSpy = jest.spyOn(service, 'contaAtiva')
+    contaAtivaSpy.mockImplementation(() => true)
+
+    const createSpy = jest.spyOn(transacaoRepoMock, 'create')
+    createSpy.mockImplementation(() => transacao)
+
+    const saveSpy = jest.spyOn(transacaoRepoMock, 'save')
+
+    const atualizaSaldoContaSpy = jest.spyOn(service, 'atualizaSaldoConta');
+
+    const result = await service.deposito(depositoDto);
+
+    expect(buscaContaSpy).toHaveBeenCalled()
+    expect(contaAtivaSpy).toHaveBeenCalled()
+    expect(createSpy).toHaveBeenCalled()
+    expect(saveSpy).toHaveBeenCalled()
+    expect(atualizaSaldoContaSpy).toHaveBeenCalled()
+
+    expect(result.statusCode).toBe(201)
+    expect(result).toStrictEqual(created(response));
+  })
+
+  it('should deposito return server error 500', async () => {
+    const depositoDto: any = {
+      "conta": {
+        "agencia": "0000",
+        "conta": "00000000"
+      }
+    }
+
+    const result = service.deposito(depositoDto);
+    expect(result).resolves.toEqual(serverError());
+  })
 });
 
 
@@ -328,6 +443,8 @@ export const repositoryMockFactory: () => Repository<any> = jest.fn(() => {
   const original = jest.requireActual("typeorm");
   return {
     ...original,
+    create: jest.fn(),
+    save: jest.fn(),
     findOne: jest.fn(),
     update: jest.fn()
   }
