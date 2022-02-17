@@ -1,4 +1,4 @@
-import { Conta } from "src/application/conta/entities/conta.entity";
+import { Conta } from "./../../../application/conta/entities/conta.entity";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('transacao')

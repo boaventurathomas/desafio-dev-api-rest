@@ -1,5 +1,4 @@
 import { HttpStatus } from '@nestjs/common';
-import { ServerError } from '../errors/server-error';
 import { Response } from '../interfaces/response.interface';
 
 export const badRequest = (error: string): Response => ({

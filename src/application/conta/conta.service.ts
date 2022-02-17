@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { badRequest, created, notFound, ok, serverError } from 'src/helpers/http.helper';
+import { badRequest, created, notFound, ok, serverError } from './../../helpers/http.helper';
 import { Repository } from 'typeorm';
 import { CreateContaDto } from './dto/create-conta.dto';
 import { UpdateContaDto } from './dto/update-conta.dto';

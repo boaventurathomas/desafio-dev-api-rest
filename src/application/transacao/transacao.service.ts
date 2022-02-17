@@ -1,13 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { badRequest, created, notFound, ok, serverError } from 'src/helpers/http.helper';
-import { getDateNowToDB } from 'src/utils/date-format';
-import { getConnection, Repository } from 'typeorm';
+import { badRequest, created, notFound, ok, serverError } from './../../helpers/http.helper';
+import { getDateNowToDB } from './../../utils/date-format';
+import { Connection, getConnection, Repository } from 'typeorm';
 import { Conta } from '../conta/entities/conta.entity';
 import { ExtratoTransacoesDto } from './dto/extrato-transacoes.dto';
 import { Transacao } from './entities/transacao.entity';
 import { CreateTransacaoDto } from './dto/create-transacao.dto';
 import { ResponseCreateTransacaoDto } from './dto/response-create-transacao.dto';
+import { CreateTrasacaoContaDto } from './dto/create-transacao-conta.dto copy';
 
 @Injectable()
 export class TransacaoService {
@@ -17,8 +18,8 @@ export class TransacaoService {
     private readonly repository: Repository<Transacao>
   ) { }
 
-  private async consultaValorSaqueDia(agencia: string, conta: string, data: string): Promise<number> {
-    const transacoesDia = await this.repository.createQueryBuilder()
+  async consultaValorSaqueDia(agencia: string, conta: string, data: string): Promise<number> {
+    const transacoesDia = await this.repository.createQueryBuilder('saquesDia')
       .select('SUM(valor)', 'totalDia')
       .where('conta = :conta', { conta })
       .andWhere('agencia = :agencia', { agencia })
@@ -29,17 +30,54 @@ export class TransacaoService {
     return transacoesDia.totalDia === null ? 0 : transacoesDia.totalDia * -1;
   }
 
-  private validaLimite(conta: Conta, valorTransacao: number, valorTotalResgatadoDia: number): boolean {
+  validaLimite(conta: Conta, valorTransacao: number, valorTotalResgatadoDia: number): boolean {
     return (valorTotalResgatadoDia + valorTransacao) <= conta.limiteSaqueDiario
   }
 
-  private contaAtiva(conta: Conta): boolean {
+  contaAtiva(conta: Conta): boolean {
     return conta.ativo
   }
 
-  private validaSaldoContaTransacao(conta: Conta, valorTransacao: number): boolean {
+  validaSaldoContaTransacao(conta: Conta, valorTransacao: number): boolean {
     const saldoConta = +conta.saldo;
     return saldoConta >= valorTransacao
+  }
+
+  async buscaConta(conta: CreateTrasacaoContaDto, contaRepository: Repository<Conta>): Promise<Conta> {
+    const contaCadastrada = await contaRepository.findOne({ agencia: conta.agencia, conta: conta.conta });
+
+    if (!contaCadastrada) {
+      return undefined
+    }
+
+    return contaCadastrada
+  }
+
+  async atualizaSaldoConta(conta: Conta, novoSaldo: number, contaRepository: Repository<Conta>) {
+    await contaRepository.update({ conta: conta.conta, agencia: conta.agencia }, { saldo: novoSaldo });
+  }
+
+  async extrato(extratoTransacoesDTO: ExtratoTransacoesDto) {
+
+    try {
+      const contaData = extratoTransacoesDTO.conta
+      const agenciaData = extratoTransacoesDTO.agencia
+      const dataInicialPeriodoData = extratoTransacoesDTO.dataInicialPeriodo
+      const dataFinalPeriodoData = extratoTransacoesDTO.dataFinalPeriodo
+
+      const transacoes = await this.repository
+        .createQueryBuilder()
+        .select()
+        .where('conta = :contaData', { contaData })
+        .andWhere('agencia = :agenciaData', { agenciaData })
+        .andWhere('STR_TO_DATE(data_transacao, "%Y-%m-%d") BETWEEN STR_TO_DATE(:dataInicialPeriodoData,"%Y-%m-%d") AND STR_TO_DATE(:dataFinalPeriodoData,"%Y-%m-%d")', { dataInicialPeriodoData, dataFinalPeriodoData })
+        .getMany()
+
+      return ok(transacoes);
+    } catch (e) {
+      Logger.error(e);
+      return serverError();
+    }
   }
 
   async saque(saqueDto: CreateTransacaoDto) {
@@ -113,7 +151,6 @@ export class TransacaoService {
 
   async deposito(depositoDto: CreateTransacaoDto) {
 
-
     const connection = getConnection();
     const queryRunner = connection.createQueryRunner();
 
@@ -123,24 +160,23 @@ export class TransacaoService {
     try {
 
       const transacaoRepository = connection.getRepository(Transacao);
-      const contaRepository = connection.getRepository(Conta);
+      const contaRepository: Repository<Conta> = connection.getRepository(Conta);
+      const contaCadastrada = await this.buscaConta(depositoDto.conta, contaRepository);
 
-      const conta = await contaRepository.findOne({ agencia: depositoDto.conta.agencia, conta: depositoDto.conta.conta });
-
-      if (!conta) {
+      if (!contaCadastrada) {
         return notFound(`Agência ${depositoDto.conta.agencia} e conta ${depositoDto.conta.conta} não cadastrada`)
       }
 
-      if (!this.contaAtiva(conta)) {
-        return badRequest(`Agência ${conta.agencia} e conta ${conta.conta} inativa`)
+      if (!this.contaAtiva(contaCadastrada)) {
+        return badRequest(`Agência ${contaCadastrada.agencia} e conta ${contaCadastrada.conta} inativa`)
       }
 
-      const novoSaldo = (+conta.saldo) + (+depositoDto.valor);
+      const novoSaldo = (+contaCadastrada.saldo) + (+depositoDto.valor);
 
       const createdTransacao = transacaoRepository.create(depositoDto)
       await transacaoRepository.save(createdTransacao)
 
-      await contaRepository.update({ conta: conta.conta, agencia: conta.agencia }, { saldo: novoSaldo });
+      await this.atualizaSaldoConta(contaCadastrada, novoSaldo, contaRepository)
 
       await queryRunner.commitTransaction();
 
@@ -151,8 +187,8 @@ export class TransacaoService {
           valor: createdTransacao.valor
         },
         conta: {
-          conta: conta.conta,
-          agencia: conta.agencia,
+          conta: contaCadastrada.conta,
+          agencia: contaCadastrada.agencia,
           saldo: novoSaldo
         }
       }
@@ -166,26 +202,4 @@ export class TransacaoService {
     }
   }
 
-  async extrato(extratoTransacoesDTO: ExtratoTransacoesDto) {
-
-    try {
-      const contaData = extratoTransacoesDTO.conta
-      const agenciaData = extratoTransacoesDTO.agencia
-      const dataInicialPeriodoData = extratoTransacoesDTO.dataInicialPeriodo
-      const dataFinalPeriodoData = extratoTransacoesDTO.dataFinalPeriodo
-
-      const transacoes = await this.repository
-        .createQueryBuilder()
-        .select()
-        .where('conta = :contaData', { contaData })
-        .andWhere('agencia = :agenciaData', { agenciaData })
-        .andWhere('STR_TO_DATE(data_transacao, "%Y-%m-%d") BETWEEN STR_TO_DATE(:dataInicialPeriodoData,"%Y-%m-%d") AND STR_TO_DATE(:dataFinalPeriodoData,"%Y-%m-%d")', { dataInicialPeriodoData, dataFinalPeriodoData })
-        .getMany()
-
-      return ok(transacoes);
-    } catch (e) {
-      Logger.error(e);
-      return serverError();
-    }
-  }
 }
