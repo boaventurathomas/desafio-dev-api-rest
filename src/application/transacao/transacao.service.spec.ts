@@ -349,6 +349,18 @@ describe('TransacaoService', () => {
     expect(result.statusCode).toBe(400)
   })
 
+  it('should deposito return server error 500', async () => {
+    const depositoDto: any = {
+      "conta": {
+        "agencia": "0000",
+        "conta": "00000000"
+      }
+    }
+
+    const result = service.deposito(depositoDto);
+    expect(result).resolves.toEqual(serverError());
+  })
+
   it('should deposito is correct', async () => {
     const depositoDto: CreateTransacaoDto = {
       "valor": 1.37,
@@ -425,17 +437,263 @@ describe('TransacaoService', () => {
     expect(result).toStrictEqual(created(response));
   })
 
-  it('should deposito return server error 500', async () => {
-    const depositoDto: any = {
+  it('should if conta to SAQUE not found 404', async () => {
+    const saqueDto: CreateTransacaoDto = {
+      "valor": 1.37,
       "conta": {
         "agencia": "0000",
         "conta": "00000000"
       }
     }
 
-    const result = service.deposito(depositoDto);
+    jest.spyOn(typeorm, "getConnection").mockImplementation(() => connection);
+
+    const qr = connection.createQueryRunner()
+    qr.connect()
+    qr.startTransaction()
+
+    jest.spyOn(connection, "getRepository").mockImplementation(() => transacaoRepoMock);
+    jest.spyOn(connection, "getRepository").mockImplementation(() => contaRepoMock);
+
+    const buscaContaSpy = jest.spyOn(service, 'buscaConta');
+    buscaContaSpy.mockImplementation(() => Promise.resolve(undefined));
+
+    const result = await service.saque(saqueDto);
+
+    expect(result.statusCode).toBe(404)
+  })
+
+  it('should if conta to SAQUE is inactive returns bad request 400', async () => {
+    const saqueDto: CreateTransacaoDto = {
+      "valor": 1.37,
+      "conta": {
+        "agencia": "0000",
+        "conta": "00000000"
+      }
+    }
+
+    const contaResponse: Conta = {
+      agencia: saqueDto.conta.agencia,
+      conta: saqueDto.conta.conta,
+      ativo: false,
+      saldo: 0
+    }
+
+    jest.spyOn(typeorm, "getConnection").mockImplementation(() => connection);
+
+    const qr = connection.createQueryRunner()
+    qr.connect()
+    qr.startTransaction()
+
+    jest.spyOn(connection, "getRepository").mockImplementation(() => transacaoRepoMock);
+    jest.spyOn(connection, "getRepository").mockImplementation(() => contaRepoMock);
+
+    const buscaContaSpy = jest.spyOn(service, 'buscaConta');
+    buscaContaSpy.mockImplementation(() => Promise.resolve(contaResponse));
+
+    const contaAtivaSpy = jest.spyOn(service, 'contaAtiva')
+
+    const result = await service.saque(saqueDto);
+
+    expect(result.statusCode).toBe(400)
+    expect(buscaContaSpy).toHaveBeenCalled()
+    expect(contaAtivaSpy).toHaveBeenCalled()
+  })
+
+  it('should if conta to SAQUE no has enough saldo returns bad request 400', async () => {
+    const saqueDto: CreateTransacaoDto = {
+      "valor": 1.37,
+      "conta": {
+        "agencia": "0000",
+        "conta": "00000000"
+      }
+    }
+
+    const contaResponse: Conta = {
+      agencia: saqueDto.conta.agencia,
+      conta: saqueDto.conta.conta,
+      ativo: true,
+      saldo: 0
+    }
+
+    jest.spyOn(typeorm, "getConnection").mockImplementation(() => connection);
+
+    const qr = connection.createQueryRunner()
+    qr.connect()
+    qr.startTransaction()
+
+    jest.spyOn(connection, "getRepository").mockImplementation(() => transacaoRepoMock);
+    jest.spyOn(connection, "getRepository").mockImplementation(() => contaRepoMock);
+
+    const buscaContaSpy = jest.spyOn(service, 'buscaConta');
+    buscaContaSpy.mockImplementation(() => Promise.resolve(contaResponse));
+
+    const contaAtivaSpy = jest.spyOn(service, 'contaAtiva')
+
+    const validaSaldoContaTransacaoSpy = jest.spyOn(service, 'validaSaldoContaTransacao')
+    validaSaldoContaTransacaoSpy.mockImplementation(() => false)
+
+    const result = await service.saque(saqueDto);
+
+    expect(result.statusCode).toBe(400)
+    expect(result.error).toBe('Saldo insuficiente')
+    expect(buscaContaSpy).toHaveBeenCalled()
+    expect(contaAtivaSpy).toHaveBeenCalled()
+    expect(validaSaldoContaTransacaoSpy).toHaveBeenCalled()
+  })
+
+  it('should if daily account limit reached to SAQUE', async () => {
+
+    const saqueDto: CreateTransacaoDto = {
+      "valor": 1.37,
+      "conta": {
+        "agencia": "0000",
+        "conta": "00000000"
+      }
+    }
+
+    const contaResponse: Conta = {
+      agencia: saqueDto.conta.agencia,
+      conta: saqueDto.conta.conta,
+      ativo: true,
+      saldo: 0,
+      limiteSaqueDiario: 2000
+    }
+
+    jest.spyOn(typeorm, "getConnection").mockImplementation(() => connection);
+
+    const qr = connection.createQueryRunner()
+    qr.connect()
+    qr.startTransaction()
+
+    jest.spyOn(connection, "getRepository").mockImplementation(() => transacaoRepoMock);
+    jest.spyOn(connection, "getRepository").mockImplementation(() => contaRepoMock);
+
+    const buscaContaSpy = jest.spyOn(service, 'buscaConta');
+    buscaContaSpy.mockImplementation(() => Promise.resolve(contaResponse));
+
+    const contaAtivaSpy = jest.spyOn(service, 'contaAtiva')
+
+    const validaSaldoContaTransacaoSpy = jest.spyOn(service, 'validaSaldoContaTransacao')
+    validaSaldoContaTransacaoSpy.mockImplementation(() => true)
+
+    const consultaValorSaqueDiaSpy = jest.spyOn(service, 'consultaValorSaqueDia')
+    consultaValorSaqueDiaSpy.mockImplementation(() => Promise.resolve(3000))
+
+    const validaLimiteSpy = jest.spyOn(service, 'validaLimite')
+    validaLimiteSpy.mockImplementation(() => false)
+
+    const result = await service.saque(saqueDto);
+
+    expect(result.statusCode).toBe(400)
+    expect(result.error).toBe('Limite diário atingido')
+    expect(buscaContaSpy).toHaveBeenCalled()
+    expect(contaAtivaSpy).toHaveBeenCalled()
+    expect(validaSaldoContaTransacaoSpy).toHaveBeenCalled()
+    expect(consultaValorSaqueDiaSpy).toHaveBeenCalled()
+    expect(validaLimiteSpy).toHaveBeenCalled()
+  })
+
+  it('should SAQUE return server error 500', async () => {
+    const saqueDto: any = {
+      "conta": {
+        "agencia": "0000",
+        "conta": "00000000"
+      }
+    }
+
+    const result = service.saque(saqueDto);
     expect(result).resolves.toEqual(serverError());
   })
+
+  it('should SAQUE is correct', async () => {
+    const saqueDto: CreateTransacaoDto = {
+      "valor": 1.37,
+      "conta": {
+        "agencia": "0000",
+        "conta": "00000000"
+      }
+    }
+
+    const contaResponse: Conta = {
+      agencia: saqueDto.conta.agencia,
+      conta: saqueDto.conta.conta,
+      ativo: true,
+      saldo: 0
+    }
+
+    const transacao: Transacao = {
+      idTransacao: '1',
+      valor: saqueDto.valor,
+      dataTransacao: new Date('2022-07-05'),
+      conta: {
+        conta: contaResponse.conta,
+        agencia: contaResponse.agencia,
+        saldo: contaResponse.saldo
+      }
+    }
+
+    const response: ResponseCreateTransacaoDto = {
+      transacao: {
+        idTransacao: transacao.idTransacao,
+        dataTransacao: transacao.dataTransacao,
+        valor: transacao.valor
+      },
+      conta: {
+        conta: contaResponse.conta,
+        agencia: contaResponse.agencia,
+        saldo: contaResponse.saldo - transacao.valor
+      }
+    }
+
+    jest.spyOn(typeorm, "getConnection").mockImplementation(() => connection);
+
+    const qr = connection.createQueryRunner()
+    qr.connect()
+    qr.startTransaction()
+
+    jest.spyOn(connection, "getRepository").mockImplementation(() => transacaoRepoMock);
+    jest.spyOn(connection, "getRepository").mockImplementation(() => contaRepoMock);
+
+    jest.spyOn(typeorm, "getConnection").mockImplementation(() => connection);
+
+    const buscaContaSpy = jest.spyOn(service, 'buscaConta');
+    buscaContaSpy.mockImplementation(() => Promise.resolve(contaResponse));
+
+    const contaAtivaSpy = jest.spyOn(service, 'contaAtiva')
+    contaAtivaSpy.mockImplementation(() => true)
+
+    const validaSaldoContaTransacaoSpy = jest.spyOn(service, 'validaSaldoContaTransacao')
+    validaSaldoContaTransacaoSpy.mockImplementation(() => true)
+
+    const consultaValorSaqueDiaSpy = jest.spyOn(service, 'consultaValorSaqueDia')
+    consultaValorSaqueDiaSpy.mockImplementation(() => Promise.resolve(1000))
+
+    const validaLimiteSpy = jest.spyOn(service, 'validaLimite')
+    validaLimiteSpy.mockImplementation(() => true)
+
+    const createSpy = jest.spyOn(transacaoRepoMock, 'create')
+    createSpy.mockImplementation(() => transacao)
+
+    const saveSpy = jest.spyOn(transacaoRepoMock, 'save')
+
+    const atualizaSaldoContaSpy = jest.spyOn(service, 'atualizaSaldoConta');
+
+    const result = await service.saque(saqueDto);
+
+    expect(buscaContaSpy).toHaveBeenCalled()
+    expect(contaAtivaSpy).toHaveBeenCalled()
+    expect(validaSaldoContaTransacaoSpy).toHaveBeenCalled()
+    expect(consultaValorSaqueDiaSpy).toHaveBeenCalled()
+    expect(validaLimiteSpy).toHaveBeenCalled()
+    expect(createSpy).toHaveBeenCalled()
+    expect(saveSpy).toHaveBeenCalled()
+    expect(atualizaSaldoContaSpy).toHaveBeenCalled()
+
+    expect(result.statusCode).toBe(201)
+    expect(result).toStrictEqual(created(response));
+  })
+
 });
 
 
