@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { badRequest, created, notFound, ok, serverError } from './../../helpers/http.helper';
 import { getDateNowToDB } from './../../utils/date-format';
-import { Connection, getConnection, Repository } from 'typeorm';
+import { getConnection, Repository } from 'typeorm';
 import { Conta } from '../conta/entities/conta.entity';
 import { ExtratoTransacoesDto } from './dto/extrato-transacoes.dto';
 import { Transacao } from './entities/transacao.entity';
@@ -69,7 +69,7 @@ export class TransacaoService {
       const dataInicialPeriodoData = extratoTransacoesDTO.dataInicialPeriodo
       const dataFinalPeriodoData = extratoTransacoesDTO.dataFinalPeriodo
 
-      const transacoes = await this.repository
+      const transacoes: Transacao[] = await this.repository
         .createQueryBuilder()
         .select()
         .where('conta = :contaData', { contaData })

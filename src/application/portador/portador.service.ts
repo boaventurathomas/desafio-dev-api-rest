@@ -1,33 +1,27 @@
-import {
-  BadRequestException,
-  HttpCode,
-  HttpStatus,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreatePortadorDto } from './dto/create-portador.dto';
 import { UpdatePortadorDto } from './dto/update-portador.dto';
 import { Portador } from './entities/portador.entity';
 import { Response } from './../../interfaces/response.interface';
-import { badRequest, created, notFound, ok, serverError } from 'src/helpers/http.helper';
+import { badRequest, created, notFound, ok, serverError } from './../../helpers/http.helper';
 
 @Injectable()
 export class PortadorService {
   constructor(
     @InjectRepository(Portador)
     private readonly repository: Repository<Portador>,
-  ) {}
+  ) { }
 
   async create(createPortadorDto: CreatePortadorDto): Promise<Response> {
     const portador = await this.repository.findOne(createPortadorDto.cpf);
     if (portador) {
-      return badRequest(`Portador ${portador.cpf} já existente`);        
+      return badRequest(`Portador ${portador.cpf} já existente`);
     } else {
       const createdPortador = await this.repository.create(createPortadorDto)
-      return created(await this.repository.save(createdPortador))
+      await this.repository.save(createdPortador)
+      return created(createdPortador)
     }
   }
 
@@ -58,7 +52,7 @@ export class PortadorService {
     if (updateResponse.affected > 0) {
       return ok(Object.assign({}, portador, updatePortadorDto))
     } else {
-     return serverError()
+      return serverError()
     }
   }
 

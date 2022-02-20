@@ -11,6 +11,7 @@ import { ExtratoTransacoesDto } from './dto/extrato-transacoes.dto';
 import { created, ok, serverError } from './../../helpers/http.helper';
 import { CreateTransacaoDto } from './dto/create-transacao.dto';
 import { ResponseCreateTransacaoDto } from './dto/response-create-transacao.dto';
+import { repositoryMockFactory } from './../../factories/repository-mock.factory';
 
 jest.mock('typeorm', () => {
   const actual = jest.requireActual('typeorm');
@@ -697,13 +698,13 @@ describe('TransacaoService', () => {
 });
 
 
-export const repositoryMockFactory: () => Repository<any> = jest.fn(() => {
-  const original = jest.requireActual("typeorm");
-  return {
-    ...original,
-    create: jest.fn(),
-    save: jest.fn(),
-    findOne: jest.fn(),
-    update: jest.fn()
-  }
-});
+// export const repositoryMockFactory: () => Repository<any> = jest.fn(() => {
+//   const original = jest.requireActual("typeorm");
+//   return {
+//     ...original,
+//     create: jest.fn(),
+//     save: jest.fn(),
+//     findOne: jest.fn(),
+//     update: jest.fn()
+//   }
+// });
