@@ -1,0 +1,354 @@
+{
+	"info": {
+		"_postman_id": "8705ad44-5b2c-44de-b35b-c35eaff5b36c",
+		"name": "desafio-dev-api-rest",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "portador",
+			"item": [
+				{
+					"name": "/portador",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/portador",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"portador"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/portador/:idPortador",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/portador/{{cpf}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"portador",
+								"{{cpf}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/portador/:idPortador",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"nomeCompleto\": \"TESTE\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/portador/{{cpf}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"portador",
+								"{{cpf}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/portador/:idPortador",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/portador/{{cpf}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"portador",
+								"{{cpf}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/portador",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"nomeCompleto\":\"Thomas Boa Ventura\",\r\n    \"cpf\": \"{{cpf}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/portador",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"portador"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "conta",
+			"item": [
+				{
+					"name": "/conta/:agencia/:conta",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/conta/{{agencia}}/{{conta}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"conta",
+								"{{agencia}}",
+								"{{conta}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/conta/:agencia/:conta",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"ativo\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/conta/{{agencia}}/{{conta}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"conta",
+								"{{agencia}}",
+								"{{conta}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/conta/:agencia/:conta",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/conta/{{agencia}}/{{conta}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"conta",
+								"{{agencia}}",
+								"{{conta}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/conta",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"agencia\": \"{{agencia}}\",\r\n  \"conta\": \"{{conta}}\",\r\n  \"portador\": {\r\n    \"cpf\": \"{{cpf}}\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/conta",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"conta"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "transacao",
+			"item": [
+				{
+					"name": "/transacao/extrato",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/transacao/extrato?agencia={{agencia}}&conta={{conta}}&dataInicialPeriodo={{data_inicial_periodo}}&dataFinalPeriodo={{data_final_periodo}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"transacao",
+								"extrato"
+							],
+							"query": [
+								{
+									"key": "agencia",
+									"value": "{{agencia}}"
+								},
+								{
+									"key": "conta",
+									"value": "{{conta}}"
+								},
+								{
+									"key": "dataInicialPeriodo",
+									"value": "{{data_inicial_periodo}}"
+								},
+								{
+									"key": "dataFinalPeriodo",
+									"value": "{{data_final_periodo}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/transacao/deposito",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"valor\": 1.37,\r\n  \"conta\": {\r\n    \"agencia\": \"{{agencia}}\",\r\n    \"conta\": \"{{conta}}\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/transacao/deposito",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"transacao",
+								"deposito"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/transacao/saque",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"valor\": 1.37,\r\n  \"conta\": {\r\n    \"agencia\": \"{{agencia}}\",\r\n    \"conta\": \"{{conta}}\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/transacao/saque",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"transacao",
+								"saque"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
