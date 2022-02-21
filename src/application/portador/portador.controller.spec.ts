@@ -1,9 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { CreateContaDto } from '../conta/dto/create-conta.dto';
 import { repositoryMockFactory } from './../../factories/repository-mock.factory';
 import { created, ok } from './../../helpers/http.helper';
-import { CreatePortadorDto } from './dto/create-portador.dto';
 import { UpdatePortadorDto } from './dto/update-portador.dto';
 import { Portador } from './entities/portador.entity';
 import { PortadorController } from './portador.controller';

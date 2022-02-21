@@ -37,10 +37,10 @@ CREATE TABLE IF NOT EXISTS `desafio-dev-api-rest`.`conta` (
   `ativo` TINYINT(4) NOT NULL DEFAULT '1',
   `limite_saque_diario` DECIMAL(15,2) NOT NULL DEFAULT '2000.00',
   PRIMARY KEY (`agencia`, `conta`),
-  INDEX `FK_f87b37c3d2b83216585a83978be` (`portadorCpf` ASC) VISIBLE,
-  INDEX `IDX_bb1bea79caeb9f6373737480c9` (`agencia` ASC) VISIBLE,
-  INDEX `IDX_e46577bf6e961a90081e0ca64f` (`conta` ASC) VISIBLE,
-  CONSTRAINT `FK_f87b37c3d2b83216585a83978be`
+  INDEX `FK_portador_portadorcpf` (`portadorCpf` ASC)  ,
+  INDEX `IDX_conta_agencia` (`agencia` ASC)  ,
+  INDEX `IDX_conta_conta` (`conta` ASC)  ,
+  CONSTRAINT `FK_portador_portadorcpf`
     FOREIGN KEY (`portadorCpf`)
     REFERENCES `desafio-dev-api-rest`.`portador` (`cpf`)
     ON DELETE NO ACTION
@@ -59,8 +59,8 @@ CREATE TABLE IF NOT EXISTS `desafio-dev-api-rest`.`transacao` (
   `agencia` VARCHAR(4) NOT NULL,
   `conta` VARCHAR(8) NOT NULL,
   PRIMARY KEY (`id_transacao`),
-  INDEX `FK_5d87f8f4e3c17cb35deb5fa75f7` (`agencia` ASC, `conta` ASC) VISIBLE,
-  CONSTRAINT `FK_5d87f8f4e3c17cb35deb5fa75f7`
+  INDEX `FK_conta_agencia_conta` (`agencia` ASC, `conta` ASC)  ,
+  CONSTRAINT `FK_conta_agencia_conta`
     FOREIGN KEY (`agencia` , `conta`)
     REFERENCES `desafio-dev-api-rest`.`conta` (`agencia` , `conta`)
     ON DELETE NO ACTION

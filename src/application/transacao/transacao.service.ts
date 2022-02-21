@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { badRequest, created, notFound, ok, serverError } from './../../helpers/http.helper';
 import { getDateNowToDB } from './../../utils/date-format';
@@ -79,7 +79,6 @@ export class TransacaoService {
 
       return ok(transacoes);
     } catch (e) {
-      Logger.error(e);
       return serverError();
     }
   }
@@ -144,7 +143,6 @@ export class TransacaoService {
       return created(response)
 
     } catch (e) {
-      Logger.error(e);
       await queryRunner.rollbackTransaction();
       return serverError();
     }
@@ -198,7 +196,6 @@ export class TransacaoService {
       return created(response)
 
     } catch (e) {
-      Logger.error(e);
       await queryRunner.rollbackTransaction();
       return serverError();
     }

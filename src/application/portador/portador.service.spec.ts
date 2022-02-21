@@ -4,7 +4,7 @@ import { repositoryMockFactory } from './../../factories/repository-mock.factory
 import { PortadorService } from './portador.service';
 import { Portador } from './entities/portador.entity';
 import { Repository, UpdateResult } from 'typeorm';
-import { created, notFound, ok, serverError } from './../../helpers/http.helper';
+import { created, ok, serverError } from './../../helpers/http.helper';
 import { UpdatePortadorDto } from './dto/update-portador.dto';
 
 describe('PortadorService', () => {
@@ -158,12 +158,6 @@ describe('PortadorService', () => {
         nomeCompleto: 'TESTE'
       }
 
-      const updateResponse: UpdateResult = {
-        raw: 1,
-        affected: 1,
-        generatedMaps: []
-      }
-
       const spyFindOne = jest.spyOn(portadorRepoMock, 'findOne')
       spyFindOne.mockReturnValue(Promise.resolve(null))
 
@@ -174,7 +168,7 @@ describe('PortadorService', () => {
 
     });
 
-    it('should not update portador because not exist', async () => {
+    it('should not update portador because no rows affected', async () => {
 
       const updatePortadorDto: UpdatePortadorDto = {
         nomeCompleto: 'TESTE'
@@ -204,16 +198,6 @@ describe('PortadorService', () => {
   describe('remove', () => {
     it('should remove portador', async () => {
 
-      const updatePortadorDto: UpdatePortadorDto = {
-        nomeCompleto: 'TESTE'
-      }
-
-      const updateResponse: UpdateResult = {
-        raw: 1,
-        affected: 1,
-        generatedMaps: []
-      }
-
       const spyFindOne = jest.spyOn(portadorRepoMock, 'findOne')
       spyFindOne.mockReturnValue(Promise.resolve(portador))
 
@@ -227,16 +211,6 @@ describe('PortadorService', () => {
     });
 
     it('should not remove portador because not exist', async () => {
-
-      const updatePortadorDto: UpdatePortadorDto = {
-        nomeCompleto: 'TESTE'
-      }
-
-      const updateResponse: UpdateResult = {
-        raw: 1,
-        affected: 1,
-        generatedMaps: []
-      }
 
       const spyFindOne = jest.spyOn(portadorRepoMock, 'findOne')
       spyFindOne.mockReturnValue(Promise.resolve(null))

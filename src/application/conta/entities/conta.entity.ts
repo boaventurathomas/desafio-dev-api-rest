@@ -1,6 +1,6 @@
 import { Portador } from "./../../../application/portador/entities/portador.entity";
 import { Transacao } from "./../../../application/transacao/entities/transacao.entity";
-import { Column, Entity, Index, ManyToOne, OneToMany, PrimaryColumn, Unique } from "typeorm";
+import { Column, Entity, Index, ManyToOne, OneToMany, PrimaryColumn } from "typeorm";
 
 @Entity('conta')
 export class Conta {
