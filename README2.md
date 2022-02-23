@@ -72,14 +72,14 @@ As requisições estão divididas em pastas na collection, Contas, Portador e Tr
 
     2.5 Executar as operações de *saque* e *depósito*
 
-    - 2.5.1 *Depósito* é liberado para todas as *contas ativas* e *desbloqueadas*
-      - Utilizar a requisição na pasta transacao -> POST /transacao/deposito para uma conta que esteja ativa (ver item 2.4 para ativar. Por padrão é criada ativa)
-      - Utilizar a requisição na pasta transacao -> POST /transacao/deposito para uma conta que esteja inativa (ver item 2.4 para inativar uma conta). Aplicação avisará que a conta está inativa
+     2.5.1 *Depósito* é liberado para todas as *contas ativas* e *desbloqueadas*
+     - Utilizar a requisição na pasta transacao -> POST /transacao/deposito para uma conta que esteja ativa (ver item 2.4 para ativar. Por padrão é criada ativa)
+     - Utilizar a requisição na pasta transacao -> POST /transacao/deposito para uma conta que esteja inativa (ver item 2.4 para inativar uma conta). Aplicação avisará que a conta está inativa
 
-    - 2.5.2 *Saque* é permitido para todas as *contas ativas* e *desbloqueadas* desde que haja *saldo disponível* e não ultrapasse o limite diário de *2 mil reais*
-      - Utilizar a requisição na pasta transacao -> POST /transacao/saque para uma conta que esteja ativa (ver item 2.4 para ativar. Por padrão é criada ativa) e que tenha saldo superior ao valor do saque (veja o item 2.5.1 como realizar deposito na conta) e que tenha valor total de saque no dia menor que 2000 reais (ver item 2.3 para consultar os saques do dia)
-      - Utilizar a requisição na pasta transacao -> POST /transacao/saque para uma conta que esteja inativa (ver item 2.4 para inativar uma conta). Aplicação avisará que a conta está inativa
-      - Utilizar a requisição na pasta transacao -> POST /transacao/saque para uma conta que esteja ativa (ver item 2.4 para inativar uma conta) e que já tenha mais de 2000 reais em saque no dia (ver item 2.3 para consultar os saques do dia). Aplicação avisará que o limite diário foi atingido
+     2.5.2 *Saque* é permitido para todas as *contas ativas* e *desbloqueadas* desde que haja *saldo disponível* e não ultrapasse o limite diário de *2 mil reais*
+     - Utilizar a requisição na pasta transacao -> POST /transacao/saque para uma conta que esteja ativa (ver item 2.4 para ativar. Por padrão é criada ativa) e que tenha saldo superior ao valor do saque (veja o item 2.5.1 como realizar deposito na conta) e que tenha valor total de saque no dia menor que 2000 reais (ver item 2.3 para consultar os saques do dia)
+     - Utilizar a requisição na pasta transacao -> POST /transacao/saque para uma conta que esteja inativa (ver item 2.4 para inativar uma conta). Aplicação avisará que a conta está inativa
+     - Utilizar a requisição na pasta transacao -> POST /transacao/saque para uma conta que esteja ativa (ver item 2.4 para inativar uma conta) e que já tenha mais de 2000 reais em saque no dia (ver item 2.3 para consultar os saques do dia). Aplicação avisará que o limite diário foi atingido
 
 3. Precisamos *bloquear* e *desbloquear* a **conta digital Dock** a qualquer momento
    - Utilizar a requisição na pasta Conta -> PATCH /conta/:agencia/:conta passando o parâmetro ativo true para desbloquear e false para bloquear
