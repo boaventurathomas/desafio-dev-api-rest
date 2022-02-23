@@ -8,6 +8,7 @@ import { ResponseCreateTransacaoDto } from './dto/response-create-transacao.dto'
 import { CreateTransacaoDto } from './dto/create-transacao.dto';
 import { ExtratoTransacoesDto } from './dto/extrato-transacoes.dto';
 import { repositoryMockFactory } from './../../factories/repository-mock.factory';
+import { HttpStatus } from '@nestjs/common';
 
 const transactionResponse: ResponseCreateTransacaoDto = {
   transacao: {
@@ -37,7 +38,11 @@ describe('TransacaoController', () => {
   const TRANSACAO_REPOSITORY_TOKEN = getRepositoryToken(Transacao)
   let controller: TransacaoController
   let service: TransacaoService
-  
+  const res = {
+    send: function (d?: any) { return d },
+    status: function (s: number) { this.statusCode = s; return this; }
+  };
+
   const mockTransacaoService = {
     deposito: jest.fn(dto => {
       return created(transactionResponse)
@@ -51,6 +56,8 @@ describe('TransacaoController', () => {
   }
 
   beforeEach(async () => {
+
+
     const module: TestingModule = await Test.createTestingModule({
       controllers: [TransacaoController],
       providers: [
@@ -74,6 +81,7 @@ describe('TransacaoController', () => {
   });
 
   it('should do deposito', async () => {
+
     const depositoRequest: CreateTransacaoDto = {
       "valor": 1.37,
       "conta": {
@@ -81,7 +89,7 @@ describe('TransacaoController', () => {
         "conta": "00000000"
       }
     }
-    expect(await controller.deposito(depositoRequest)).toEqual(created(transactionResponse));
+    expect(await controller.deposito(res, depositoRequest)).toEqual(created(transactionResponse));
     expect(service.deposito).toHaveBeenCalledTimes(1);
   });
 
@@ -92,7 +100,7 @@ describe('TransacaoController', () => {
       dataInicialPeriodo: '2022-02-11',
       dataFinalPeriodo: '2022-02-14'
     }
-    expect(await controller.extrato(extratoRequest)).toEqual(ok(extratoResponse));
+    expect(await controller.extrato(res, extratoRequest)).toEqual(ok(extratoResponse));
     expect(service.extrato).toHaveBeenCalledTimes(1);
   });
 
@@ -104,7 +112,7 @@ describe('TransacaoController', () => {
         "conta": "00000000"
       }
     }
-    expect(await controller.saque(saqueRequest)).toEqual(created(transactionResponse));
+    expect(await controller.saque(res, saqueRequest)).toEqual(created(transactionResponse));
     expect(service.saque).toHaveBeenCalledTimes(1);
   });
 

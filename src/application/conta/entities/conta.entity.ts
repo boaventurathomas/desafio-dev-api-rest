@@ -1,9 +1,12 @@
 import { Portador } from "./../../../application/portador/entities/portador.entity";
 import { Transacao } from "./../../../application/transacao/entities/transacao.entity";
 import { Column, Entity, Index, ManyToOne, OneToMany, PrimaryColumn } from "typeorm";
+import { ApiProperty } from "@nestjs/swagger";
 
 @Entity('conta')
 export class Conta {
+
+  @ApiProperty({ description: 'Número da agência da conta', type: 'string', format: '0000', maxLength: 4, minLength: 4 })
   @Index()
   @PrimaryColumn({
     name: 'agencia',
@@ -13,6 +16,7 @@ export class Conta {
   })
   agencia?: string;
 
+  @ApiProperty({ description: 'Número da conta', type: 'string', format: '000000000', maxLength: 8, minLength: 8 })
   @Index()
   @PrimaryColumn({
     name: 'conta',
@@ -22,6 +26,7 @@ export class Conta {
   })
   conta?: string;
 
+  @ApiProperty({ description: 'Saldo da conta', type: 'decimal', format: '0.00' })
   @Column({
     name: 'saldo',
     type: 'decimal',
@@ -32,6 +37,7 @@ export class Conta {
   })
   saldo?: number;
 
+  @ApiProperty({ description: 'Limite de saque diário da conta', type: 'decimal', format: '0.00' })
   @Column({
     name: 'limite_saque_diario',
     type: 'decimal',
@@ -40,7 +46,8 @@ export class Conta {
     default: 2000
   })
   limiteSaqueDiario?: number;
-
+  
+  @ApiProperty({ description: 'Conta ativa', type: 'decimal', format: '0.00' })
   @Column({
     name: 'ativo',
     type: 'boolean',

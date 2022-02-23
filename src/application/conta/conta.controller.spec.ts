@@ -12,6 +12,11 @@ describe('ContaController', () => {
   let controller: ContaController;
   let service: ContaService
 
+  const res = {
+    send: function (d?: any) { return d },
+    status: function (s: number) { this.statusCode = s; return this; }
+  };
+
   const createContaDto: CreateContaDto = {
     agencia: '',
     conta: '',
@@ -78,14 +83,14 @@ describe('ContaController', () => {
   });
 
   it('should create conta', async () => {
-    expect(await controller.create(createContaDto)).toEqual(created(conta));
+    expect(await controller.create(res, createContaDto)).toEqual(created(conta));
     expect(service.create).toHaveBeenCalledTimes(1);
   });
 
   it('should find one conta', async () => {
     const agenciaReq = conta.agencia;
     const contaReq = conta.conta;
-    const result = await controller.findOne(agenciaReq, contaReq);
+    const result = await controller.findOne(res, agenciaReq, contaReq);
     expect(result).toEqual(ok(conta));
     expect(service.findOne).toHaveBeenCalledTimes(1);
   });
@@ -94,7 +99,7 @@ describe('ContaController', () => {
     const agenciaReq = conta.agencia;
     const contaReq = conta.conta;
     const dto: UpdateContaDto = { ativo: false }
-    const result = await controller.update(agenciaReq, contaReq, dto);
+    const result = await controller.update(res, agenciaReq, contaReq, dto);
     expect(result).toEqual(ok(Object.assign({}, conta, dto)));
     expect(service.update).toHaveBeenCalledTimes(1);
     expect(result.data.ativo).toBe(false);
@@ -103,7 +108,7 @@ describe('ContaController', () => {
   it('should remove conta', async () => {
     const agenciaReq = conta.agencia;
     const contaReq = conta.conta;
-    const result = await controller.remove(agenciaReq, contaReq);
+    const result = await controller.remove(res, agenciaReq, contaReq);
     expect(result).toEqual(ok({}));
     expect(service.remove).toHaveBeenCalledTimes(1);
   });

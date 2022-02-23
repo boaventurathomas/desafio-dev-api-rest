@@ -1,27 +1,31 @@
 import { HttpStatus } from '@nestjs/common';
-import { Response } from '../interfaces/response.interface';
 
-export const badRequest = (error: string): Response => ({
+export interface HttpResponse {
+  statusCode: number
+  data: any
+}
+
+export const badRequest = (error: string): HttpResponse => ({
   statusCode: HttpStatus.BAD_REQUEST,
-  error: error,
+  data: error,
 });
 
-export const notFound = (error: string): Response => ({
+export const notFound = (error: string): HttpResponse => ({
   statusCode: HttpStatus.NOT_FOUND,
-  error: error,
+  data: error,
 });
 
-export const serverError = (): Response => ({
+export const serverError = (): HttpResponse => ({
   statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-  error: 'Internal Server Error',
+  data: 'Internal Server Error',
 });
 
-export const created = (data: any): Response => ({
+export const created = (data: any): HttpResponse => ({
   statusCode: HttpStatus.CREATED,
   data: data,
 });
 
-export const ok = (data: any): Response => ({
+export const ok = (data: any): HttpResponse => ({
   statusCode: HttpStatus.OK,
   data: data,
 });

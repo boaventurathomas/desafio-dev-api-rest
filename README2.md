@@ -6,7 +6,7 @@ Para executar o projeto é necessário ter o docker instalado e rodar o comando
 docker compose up --build
 ```
 
-Com isso já irá configurar o banco de dados mysql conforme script que consta no arquivo *scripts/desafio-dev-api-rest.sql*
+Com isso já irá configurar o banco de dados mysql conforme script que consta no arquivo [sql](scripts/desafio-dev-api-rest.sql)
 
 A aplicação está configurada para executar na porta 3000
 
@@ -23,7 +23,7 @@ Parar verficiar a cobertura de teste pode executar o seguinte comando:
 ```
 npm run test:cov
 ```
-Após execução pode verificar via browser acessando a pasta da aplicaçao e [coverage](/coverage/lcov-report/index.html)
+Após execução pode verificar via browser acessando a pasta da aplicaçao e /coverage/lcov-report/index.html
 
 # Fazendo Requisições
 

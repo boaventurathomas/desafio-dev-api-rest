@@ -537,7 +537,7 @@ describe('TransacaoService', () => {
     const result = await service.saque(saqueDto);
 
     expect(result.statusCode).toBe(400)
-    expect(result.error).toBe('Saldo insuficiente')
+    expect(result.data).toBe('Saldo insuficiente')
     expect(buscaContaSpy).toHaveBeenCalled()
     expect(contaAtivaSpy).toHaveBeenCalled()
     expect(validaSaldoContaTransacaoSpy).toHaveBeenCalled()
@@ -587,7 +587,7 @@ describe('TransacaoService', () => {
     const result = await service.saque(saqueDto);
 
     expect(result.statusCode).toBe(400)
-    expect(result.error).toBe('Limite diário atingido')
+    expect(result.data).toBe('Limite diário atingido')
     expect(buscaContaSpy).toHaveBeenCalled()
     expect(contaAtivaSpy).toHaveBeenCalled()
     expect(validaSaldoContaTransacaoSpy).toHaveBeenCalled()
@@ -696,15 +696,3 @@ describe('TransacaoService', () => {
   })
 
 });
-
-
-// export const repositoryMockFactory: () => Repository<any> = jest.fn(() => {
-//   const original = jest.requireActual("typeorm");
-//   return {
-//     ...original,
-//     create: jest.fn(),
-//     save: jest.fn(),
-//     findOne: jest.fn(),
-//     update: jest.fn()
-//   }
-// });

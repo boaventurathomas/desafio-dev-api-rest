@@ -1,24 +1,29 @@
-import { Controller, Get, Post, Body, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, Res } from '@nestjs/common';
 import { TransacaoService } from './transacao.service';
 import { ExtratoTransacoesDto } from './dto/extrato-transacoes.dto';
 import { CreateTransacaoDto } from './dto/create-transacao.dto';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('transacao')
+@ApiTags('transacao')
 export class TransacaoController {
   constructor(private readonly transacaoService: TransacaoService) { }
 
   @Post('/deposito')
-  deposito(@Body() depositoDto: CreateTransacaoDto) {
-    return this.transacaoService.deposito(depositoDto);
+  async deposito(@Res() res, @Body() depositoDto: CreateTransacaoDto) {
+    const response = await this.transacaoService.deposito(depositoDto);
+    return res.status(response.statusCode).send(response);
   }
 
   @Post('/saque')
-  saque(@Body() saqueDto: CreateTransacaoDto) {
-    return this.transacaoService.saque(saqueDto);
+  async saque(@Res() res, @Body() saqueDto: CreateTransacaoDto) {
+    const response = await this.transacaoService.saque(saqueDto);
+    return res.status(response.statusCode).send(response);
   }
 
   @Get('/extrato')
-  async extrato(@Query() extratoTransacoesDTO: ExtratoTransacoesDto) {
-    return this.transacaoService.extrato(extratoTransacoesDTO);
+  async extrato(@Res() res, @Query() extratoTransacoesDTO: ExtratoTransacoesDto) {
+    const response = await this.transacaoService.extrato(extratoTransacoesDTO);
+    return res.status(response.statusCode).send(response);
   }
 }
