@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Res } from '@nestjs/common';
 import { PortadorService } from './portador.service';
 import { CreatePortadorDto } from './dto/create-portador.dto';
 import { UpdatePortadorDto } from './dto/update-portador.dto';
@@ -15,33 +7,39 @@ import { ApiTags } from '@nestjs/swagger';
 @Controller('portador')
 @ApiTags('portador')
 export class PortadorController {
-  constructor(private readonly portadorService: PortadorService) {}
+  constructor(private readonly portadorService: PortadorService) { }
 
   @Post()
-  create(@Body() createPortadorDto: CreatePortadorDto) {
-    return this.portadorService.create(createPortadorDto);
+  async create(@Res() res, @Body() createPortadorDto: CreatePortadorDto) {
+    const response = await this.portadorService.create(createPortadorDto);
+    return res.status(response.statusCode).send(response);
   }
 
   @Get()
-  findAll() {
-    return this.portadorService.findAll();
+  async findAll(@Res() res) {
+    const response = await this.portadorService.findAll()
+    return res.status(response.statusCode).send(response);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.portadorService.findOne(id);
+  async findOne(@Res() res, @Param('id') id: string) {
+    const response = await this.portadorService.findOne(id);
+    return res.status(response.statusCode).send(response);
   }
 
   @Patch(':id')
-  update(
+  async update(
+    @Res() res,
     @Param('id') id: string,
     @Body() updatePortadorDto: UpdatePortadorDto,
   ) {
-    return this.portadorService.update(id, updatePortadorDto);
+    const response = await this.portadorService.update(id, updatePortadorDto);
+    return res.status(response.statusCode).send(response);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.portadorService.remove(id);
+  async remove(@Res() res, @Param('id') id: string) {
+    const response = await this.portadorService.remove(id);
+    return res.status(response.statusCode).send(response);
   }
 }

@@ -11,6 +11,11 @@ describe('PortadorController', () => {
   let controller: PortadorController
   let service: PortadorService
 
+  const res = {
+    send: function (d?: any) { return d },
+    status: function (s: number) { this.statusCode = s; return this; }
+  };
+
   const portador: Portador = {
     "nomeCompleto": "Thomas Boa Ventura",
     "cpf": "65329530083"
@@ -77,18 +82,18 @@ describe('PortadorController', () => {
   });
 
   it('should create portador', async () => {
-    expect(await controller.create(portador)).toEqual(created(portador));
+    expect(await controller.create(res, portador)).toEqual(created(portador));
     expect(service.create).toHaveBeenCalledTimes(1);
   });
 
   it('should find all portadores', async () => {
-    expect(await controller.findAll()).toEqual(ok(portadores));
+    expect(await controller.findAll(res)).toEqual(ok(portadores));
     expect(service.findAll).toHaveBeenCalledTimes(1);
   });
 
   it('should find one portador', async () => {
     const cpf = portador.cpf;
-    const result = await controller.findOne(cpf);
+    const result = await controller.findOne(res, cpf);
     expect(result).toEqual(ok(portador));
     expect(service.findOne).toHaveBeenCalledTimes(1);
     expect(result.data.cpf).toEqual(cpf);
@@ -97,7 +102,7 @@ describe('PortadorController', () => {
   it('should update portador', async () => {
     const cpf = portador.cpf;
     const dto: UpdatePortadorDto = { nomeCompleto: updatedPortador.nomeCompleto }
-    const result = await controller.update(cpf, dto);
+    const result = await controller.update(res, cpf, dto);
     expect(result).toEqual(ok(updatedPortador));
     expect(service.update).toHaveBeenCalledTimes(1);
     expect(result.data.nomeCompleto).toEqual(dto.nomeCompleto);
@@ -105,7 +110,7 @@ describe('PortadorController', () => {
 
   it('should remove portador', async () => {
     const cpf = portador.cpf;
-    const result = await controller.remove(cpf);
+    const result = await controller.remove(res, cpf);
     expect(result).toEqual(ok({}));
     expect(service.remove).toHaveBeenCalledTimes(1);
   });

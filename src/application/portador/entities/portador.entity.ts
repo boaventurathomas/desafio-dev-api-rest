@@ -1,7 +1,11 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
+
 
 @Entity({ name: 'portador' })
 export class Portador {
+
+  @ApiProperty({ description: 'Nome completo do portador' })
   @Column({
     name: 'nome_completo',
     type: 'varchar',
@@ -10,6 +14,7 @@ export class Portador {
   })
   nomeCompleto: string;
 
+  @ApiProperty({ description: 'CPF válido do portador'})
   @PrimaryColumn({
     name: 'cpf',
     type: 'varchar',
